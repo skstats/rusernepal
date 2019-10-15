@@ -1,0 +1,87 @@
+---
+title: "Nuclear Explosion Analysis"
+author: "Sailesh Kumar Shrestha"
+date: "10/15/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+#Load libraries required
+```{r}
+library(readr) # for file loading
+library(ggplot2) # for plots
+library(dplyr) # for data manipulation
+```
+#Load data
+```{r}
+nuclear <- read_csv("D:\Data Hacktoberfest\data\nuclear_explosions.csv")
+nuclear
+```
+
+```{r}
+view(nuclear)
+```
+#EDA
+```{r}
+str(nuclear)
+summary(nuclear)
+```
+#Missing Values
+```{r}
+is.na(nuclear)
+table(is.na(nuclear))
+colSums(is.na(nuclear))
+```
+#Number of nuclear explosions per country
+```{r}
+table(nuclear$country)
+```
+#Number of Nuclear Explosions per year
+```{r}
+table(nuclear$year)
+```
+#Data manipulation with diplyr
+```{r}
+nuclear_country <- nuclear%>%group_by(country)%>%summarise(count=n())
+nuclear_country
+nuclear_year <- nuclear%>%group_by(year)%>%summarise(count=n())
+nuclear_year
+nuclear_region <- nuclear%>%group_by(region, country)%>%summarise(count=n())
+nuclear_region
+```
+##Arrange
+```{r}
+arrange(nuclear_country,-count)
+```
+##Visualizations
+```{r}
+north_korea <- c("NORTH KOREA",6)
+names(north_korea) <- c("country", "count")
+nuclear_country <- rbind(nuclear_country,north_korea)
+nuclear_country$count <- as.numeric(nuclear_country$count)
+```
+##ggplot2
+# Needs data, asthetics and layers
+```{r}
+ggplot(data=nuclear_country,aes(x=country,y=count, fill=country)) + geom_col() 
+```
+
+##Add labels
+```{r}
+ggplot(data=nuclear_country,aes(x=country,y=count, label=count, fill=country)) + geom_col() + labs(title="Nuclear Explosion by country",y="Number of nuclear explosions",x="Country name") +geom_text(vjust=-.5)
+```
+##Arrange
+
+```{r}
+ggplot(data=nuclear_country,aes(x=reorder(country,-count),y=count, fill=country)) + geom_col() + labs(title="Nuclear Explosion by country",y="Number of nuclear explosions",x="Country name") + theme(legend.position = N)
+```
+
+##Time Series
+```{r}
+ggplot(data=nuclear_year, aes(x=year,y=count)) + geom_line() + geom_point(aes(x=year,y=count), color="red")
+ggplot(data=nuclear_year, aes(x=year,y=count)) + geom_line() + geom_point(aes(x=year,y=count,size=count), color="red")
+ggplot(data=nuclear_year, aes(x=year,y=count,label=count)) + geom_point(aes(x=year,y=count,size=count), color="red")+geom_text(vjust=-2) 
+```
+
